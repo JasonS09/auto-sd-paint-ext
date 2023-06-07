@@ -257,6 +257,30 @@ class Defaults:
     upscale_upscaler_name: str = "None"
     upscale_downscale_first: bool = False
 
+    tiled_diffusion_enable: bool = False
+    tiled_diffusion_overwrite_image_size: bool = False
+    tiled_diffusion_keep_input_image_size: bool = True
+    tiled_diffusion_method_list: List[str] = field(default_factory=lambda: ["MultiDiffusion", "Mixture of Diffusers"])
+    tiled_diffusion_method:str = "MultiDiffusion"
+    tiled_diffusion_latent_tile_width: int = 96
+    tiled_diffusion_latent_tile_height: int = 96
+    tiled_diffusion_latent_tile_overlap: int = 48
+    tiled_diffusion_latent_tile_batch_size: int = 1
+    tiled_diffusion_scale_factor: float = 2.0
+    tiled_diffusion_enable_noise_inversion: bool = False
+    tiled_diffusion_inversion_steps: int = 10
+    tiled_diffusion_retouch: float = 1
+    tiled_diffusion_renoise_strength: float = 1
+    tiled_diffusion_renoise_kernel_size: int = 1
+
+    tiled_vae_enable: bool = False
+    tiled_vae_encoder_tile_size: int = 960
+    tiled_vae_decoder_tile_size: int = 64
+    tiled_vae_move_vae_to_gpu: bool = True
+    tiled_vae_fast_encoder: bool = True
+    tiled_vae_fast_decoder: bool = True
+    tiled_vae_fast_encoder_color_fix: bool = False
+
     controlnet_unit: str = "0"
     controlnet_unit_list: List[str] = field(default_factory=lambda: list(str(i) for i in range(10)))
     controlnet_preprocessor_list: List[str] = field(default_factory=lambda: [ERROR_MSG])

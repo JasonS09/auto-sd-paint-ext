@@ -1,7 +1,7 @@
 from krita import QHBoxLayout, QPushButton, QVBoxLayout, QWidget
 
 from ..script import script
-from ..widgets import QCheckBox, QComboBoxLayout, QLabel, QSpinBoxLayout
+from ..widgets import QCheckBox, QComboBoxLayout, QLabel, QSpinBoxLayout, TipsLayout
 
 # Notes:
 # - move tiling mode to config?
@@ -58,6 +58,11 @@ class SDCommonPage(QWidget):
             script.cfg, "upscaler_list", "upscaler_name", label="Upscaler:"
         )
 
+        self.use_tiled_diffusion = QCheckBox(script.cfg, "tiled_diffusion_enable", "Use tiled diffusion to upscale")
+        self.tips = TipsLayout(
+            ["Tiled diffusion config can be found in Upscale tab"]
+        )
+
         # Restore faces
         self.face_restorer_layout = QComboBoxLayout(
             script.cfg,
@@ -81,6 +86,45 @@ class SDCommonPage(QWidget):
         checkboxes_layout.addWidget(self.tiling)
         checkboxes_layout.addWidget(self.sddebz)
 
+        # Tiled VAE
+        self.tiled_vae_title = QLabel("<em>Tiled VAE</em>")
+        self.tiled_vae_enable = QCheckBox(script.cfg, "tiled_vae_enable", "Enable")
+        self.move_vae_to_gpu = QCheckBox(script.cfg, "tiled_vae_move_vae_to_gpu", "Move to GPU")
+
+        tiled_vae_first_checkboxes_layout = QHBoxLayout()
+        tiled_vae_first_checkboxes_layout.addWidget(self.tiled_vae_enable)
+        tiled_vae_first_checkboxes_layout.addWidget(self.move_vae_to_gpu)
+
+        self.encoder_tile_size = QSpinBoxLayout( 
+            script.cfg,
+            "tiled_vae_encoder_tile_size",
+            label="Encoder tile size:",
+            min=256,
+            max=4096,
+            step=16,
+        )
+        self.decoder_tile_size = QSpinBoxLayout(
+            script.cfg,
+            "tiled_vae_decoder_tile_size",
+            label="Decoder tile size:",
+            min=48,
+            max=512,
+            step=16,
+        )
+
+        tiled_vae_spinboxes_layout = QHBoxLayout()
+        tiled_vae_spinboxes_layout.addLayout(self.encoder_tile_size)
+        tiled_vae_spinboxes_layout.addLayout(self.decoder_tile_size)
+
+        self.tiled_vae_fast_encoder = QCheckBox(script.cfg, "tiled_vae_fast_encoder", "Fast encoder")
+        self.tiled_vae_fast_decoder = QCheckBox(script.cfg, "tiled_vae_fast_decoder", "Fast decoder")
+        self.tiled_vae_fast_encoder_color_fix = QCheckBox(script.cfg, "tiled_vae_fast_encoder_color_fix", "Encoder color fix")
+
+        tiled_vae_second_checkboxes_layout = QHBoxLayout()
+        tiled_vae_second_checkboxes_layout.addWidget(self.tiled_vae_fast_encoder)
+        tiled_vae_second_checkboxes_layout.addWidget(self.tiled_vae_fast_decoder)
+        tiled_vae_second_checkboxes_layout.addWidget(self.tiled_vae_fast_encoder_color_fix)
+
         # Interrupt button
         self.interrupt_btn = QPushButton("Interrupt")
 
@@ -89,6 +133,8 @@ class SDCommonPage(QWidget):
 
         layout.addWidget(self.title)
         layout.addLayout(self.upscaler_layout)
+        layout.addWidget(self.use_tiled_diffusion)
+        layout.addLayout(self.tips)
         layout.addLayout(self.face_restorer_layout)
         layout.addLayout(self.codeformer_weight_layout)
         layout.addLayout(checkboxes_layout)
@@ -97,6 +143,10 @@ class SDCommonPage(QWidget):
         layout.addLayout(self.clip_skip_layout)
         layout.addLayout(batch_layout)
         layout.addLayout(size_layout)
+        layout.addWidget(self.tiled_vae_title)
+        layout.addLayout(tiled_vae_first_checkboxes_layout)
+        layout.addLayout(tiled_vae_spinboxes_layout)
+        layout.addLayout(tiled_vae_second_checkboxes_layout)
         layout.addWidget(self.interrupt_btn)
         layout.addStretch()
 
@@ -113,6 +163,14 @@ class SDCommonPage(QWidget):
         self.upscaler_layout.cfg_init()
         self.face_restorer_layout.cfg_init()
         self.codeformer_weight_layout.cfg_init()
+        self.tiled_vae_enable.cfg_init()
+        self.move_vae_to_gpu.cfg_init()
+        self.encoder_tile_size.cfg_init()
+        self.decoder_tile_size.cfg_init()
+        self.tiled_vae_fast_encoder.cfg_init()
+        self.tiled_vae_fast_decoder.cfg_init()
+        self.tiled_vae_fast_encoder_color_fix.cfg_init()
+        self.use_tiled_diffusion.cfg_init()
         self.tiling.cfg_init()
         self.sddebz.cfg_init()
 
@@ -129,6 +187,14 @@ class SDCommonPage(QWidget):
         self.upscaler_layout.cfg_connect()
         self.face_restorer_layout.cfg_connect()
         self.codeformer_weight_layout.cfg_connect()
+        self.tiled_vae_enable.cfg_connect()
+        self.move_vae_to_gpu.cfg_connect()
+        self.encoder_tile_size.cfg_connect()
+        self.decoder_tile_size.cfg_connect()
+        self.tiled_vae_fast_encoder.cfg_connect()
+        self.tiled_vae_fast_decoder.cfg_connect()
+        self.tiled_vae_fast_encoder_color_fix.cfg_connect()
+        self.use_tiled_diffusion.cfg_connect()
         self.tiling.cfg_connect()
         self.sddebz.cfg_connect()
 
