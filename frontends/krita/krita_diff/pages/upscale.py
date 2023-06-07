@@ -22,14 +22,16 @@ class UpscalePage(QWidget):
 NOTE:<br/>
  - txt2img & img2img will use the <em>Quick Config</em> Upscaler when needing to scale up.<br/>
  - Upscaling manually is only useful if the image was resized via Krita.<br/>
- - img2img prompt and settings will influence the upscaling result!<br/>
+ - img2img prompt and settings will influence the upscaling result if tiled diffusion is enabled!<br/>
+ - Disable tiled diffusion in Common Settings tab to perform a simple upscale.<br/>
+ - It's recommended to deselect and disable base/max size if you want to upscale the image from the current size.
             """
         )
         self.note.setWordWrap(True)
 
         # Tiled Diffusion
         self.tiled_diffusion_title = QLabel("<em>Tiled Diffusion</em>")
-
+        
         self.diffusion_method = QComboBoxLayout(
             script.cfg, "tiled_diffusion_method_list", "tiled_diffusion_method", label="Method:"
         )
@@ -178,5 +180,5 @@ NOTE:<br/>
         self.retouch.cfg_connect()
         self.renoise_strength.cfg_connect()
         self.renoise_kernel_size.cfg_connect()
-        self.btn.released.connect(lambda: script.action_upscale())
+        self.btn.released.connect(lambda: script.action_upscale() if script.cfg("tiled_diffusion_enable", bool) else script.action_simple_upscale())
         script.status_changed.connect(lambda s: self.status_bar.set_status(s))
