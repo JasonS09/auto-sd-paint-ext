@@ -52,7 +52,7 @@ class SDPluginExtension(Extension):
         upscale_x_action = window.createAction(
             "img2img_upscale", "Apply img2img upscale", "tools/scripts"
         )
-        upscale_x_action.triggered.connect(lambda: script.action_sd_upscale())
+        upscale_x_action.triggered.connect(lambda: script.action_upscale())
         upscale_x_action = window.createAction(
             "img2img_inpaint", "Apply img2img inpaint", "tools/scripts"
         )

@@ -293,6 +293,7 @@ class Script(QObject):
     def apply_txt2img(self):
         # freeze selection region
         controlnet_enabled = self.check_controlnet_enabled()
+        use_official_api = controlnet_enabled or self.cfg("tiled_vae_enable", bool) or self.cfg("tiled_diffusion_enable", bool)
 
         insert, glayer = self.img_inserter(
             self.x, self.y, self.width, self.height, not self.cfg("no_groups", bool)
@@ -304,7 +305,7 @@ class Script(QObject):
                 self.eta_timer.stop()
             assert response is not None, "Backend Error, check terminal"
             #response key varies for official api used for controlnet
-            outputs = response["outputs"] if not controlnet_enabled else response["images"]
+            outputs = response["outputs"] if not use_official_api else response["images"]
             glayer_name, layer_names = get_desc_from_resp(response, "txt2img")
             layers = [
                 insert(name if name else f"txt2img {i + 1}", output)
@@ -320,7 +321,7 @@ class Script(QObject):
 
         self.eta_timer.start(ETA_REFRESH_INTERVAL)
 
-        if controlnet_enabled:
+        if use_official_api:
             sel_image = self.get_selection_image()
             self.client.post_official_api_txt2img(
                 cb, self.width, self.height, self.selection is not None, 
@@ -331,8 +332,9 @@ class Script(QObject):
                 cb, self.width, self.height, self.selection is not None
             )
 
-    def apply_img2img(self, is_inpaint):
+    def apply_img2img(self, is_inpaint, is_upscale=False):
         controlnet_enabled = self.check_controlnet_enabled()
+        use_official_api = controlnet_enabled or self.cfg("tiled_vae_enable", bool) or self.cfg("tiled_diffusion_enable", bool)
 
         mask_trigger = self.transparency_mask_inserter()
         mask_image = self.get_mask_image(controlnet_enabled) if is_inpaint else None
@@ -361,7 +363,7 @@ class Script(QObject):
                 self.eta_timer.stop()
             assert response is not None, "Backend Error, check terminal"
 
-            outputs = response["outputs"] if not controlnet_enabled else response["images"]
+            outputs = response["outputs"] if not use_official_api else response["images"]
             layer_name_prefix = "inpaint" if is_inpaint else "img2img"
             glayer_name, layer_names = get_desc_from_resp(response, layer_name_prefix)
             layers = [
@@ -378,11 +380,11 @@ class Script(QObject):
             if not is_inpaint:
                 mask_trigger(layers)
             # ...unless we're using the official API
-            elif controlnet_enabled:
-                self.controlnet_transparency_mask_inserter(layers, mask_image)
+            elif use_official_api:
+                self.official_api_transparency_mask_inserter(layers, mask_image)
 
         self.eta_timer.start()
-        if controlnet_enabled:
+        if use_official_api:
             if is_inpaint:
                 self.client.post_official_api_inpaint(
                     cb, sel_image, mask_image, self.width, self.height, self.selection is not None,
@@ -390,7 +392,7 @@ class Script(QObject):
             else:
                 self.client.post_official_api_img2img(
                     cb, sel_image, self.width, self.height, self.selection is not None,
-                    self.get_controlnet_input_images(sel_image))
+                    self.get_controlnet_input_images(sel_image), is_upscale)
         else:
             method = self.client.post_inpaint if is_inpaint else self.client.post_img2img
             method(
@@ -400,7 +402,7 @@ class Script(QObject):
                 self.selection is not None,
             )
     
-    def controlnet_transparency_mask_inserter(self, layers: list, mask_image):
+    def official_api_transparency_mask_inserter(self, layers: list, mask_image):
         orig_selection = self.selection.duplicate() if self.selection else None
         create_mask = self.cfg("create_mask_layer", bool)
         add_mask_action = self.app.action("add_new_transparency_mask")
@@ -550,11 +552,13 @@ class Script(QObject):
         self.adjust_selection()
         self.apply_img2img(False)
 
-    def action_sd_upscale(self):
-        assert False, "disabled"
+    def action_upscale(self):
         self.status_changed.emit(STATE_WAIT)
         self.update_selection()
-        self.apply_img2img(mode=2)
+        if not self.doc:
+            return
+        self.adjust_selection()
+        self.apply_img2img(False, True)
 
     def action_inpaint(self):
         self.status_changed.emit(STATE_WAIT)

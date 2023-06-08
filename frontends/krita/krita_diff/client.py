@@ -264,7 +264,8 @@ class Client(QObject):
         )
         return params
     
-    def official_api_common_params(self, has_selection, width, height,
+    def official_api_common_params(self, has_selection, resized_width, resized_height,
+                                   original_width, original_height, is_upscale,
                                    controlnet_src_imgs):
         """Parameters used by most official API endpoints."""
         tiling = self.cfg("sd_tiling", bool) and not (
@@ -273,8 +274,8 @@ class Client(QObject):
 
         params = dict(
             batch_size=self.cfg("sd_batch_size", int),
-            width=width,
-            height=height,
+            width=resized_width,
+            height=resized_height,
             tiling=tiling,
             restore_faces=self.cfg("face_restorer_model", str) != "None",
             override_settings=self.options_params(),
@@ -298,8 +299,66 @@ class Client(QObject):
                     "args": controlnet_units_param
                 }
             })
-        
+
+        #Tiled VAE and Tiled diffusion
+        if is_upscale or self.cfg("tiled_diffusion_enable", bool) and original_width > resized_width and original_height > resized_height:
+            params["alwayson_scripts"].update({
+                "Tiled Diffusion": {
+                    "args": self.tiled_diffusion_params(resized_width, resized_height, original_width, original_height, is_upscale)
+                }
+            })
+
+        if self.cfg("tiled_vae_enable", bool):
+            params["alwayson_scripts"].update({
+                "Tiled VAE": {
+                    "args": self.tiled_vae_params()
+                }
+            })
+
         return params
+
+    def tiled_diffusion_params(self, resized_width, resized_height, width, height, is_upscale):
+        def calculate_scale_factor():
+            scale_factor = width / resized_width
+            assert height == scale_factor * resized_height, "Upscale aspect ratio is not mantained."
+            return scale_factor
+
+        scale_factor = calculate_scale_factor() if not is_upscale else self.cfg("tiled_diffusion_scale_factor", float)
+        upscaler = self.cfg("upscaler_name", str) if not is_upscale else self.cfg("upscale_upscaler_name", str)
+        return [True, #enable 
+            self.cfg("tiled_diffusion_method", str), 
+            False, #overwrite size, 
+            True, #keep input size 
+            resized_width,# if not is_upscale else width, 
+            resized_height,# if not is_upscale else height, 
+            self.cfg("tiled_diffusion_latent_tile_width", int), 
+            self.cfg("tiled_diffusion_latent_tile_height", int), 
+            self.cfg("tiled_diffusion_latent_tile_overlap", int), 
+            self.cfg("tiled_diffusion_latent_tile_batch_size", int), 
+            upscaler,
+            scale_factor, 
+            self.cfg("tiled_diffusion_enable_noise_inversion", bool), 
+            self.cfg("tiled_diffusion_inversion_steps", int), 
+            self.cfg("tiled_diffusion_retouch", float), 
+            self.cfg("tiled_diffusion_renoise_strength", float), 
+            self.cfg("tiled_diffusion_renoise_kernel_size", int), 
+            False, # control_tensor_cpu 
+            False, # enable_bbox_control 
+            False, # draw_background 
+            False, # causal_layers
+            None #bbox_control_states
+        ]
+    
+    def tiled_vae_params(self):
+        return [
+            True,
+            self.cfg("tiled_vae_encoder_tile_size", int),
+            self.cfg("tiled_vae_decoder_tile_size", int),
+            self.cfg("tiled_vae_move_vae_to_gpu", bool),
+            self.cfg("tiled_vae_fast_decoder", bool),
+            self.cfg("tiled_vae_fast_encoder", bool),
+            self.cfg("tiled_vae_fast_encoder_color_fix", bool)
+        ]
     
     def controlnet_unit_params(self, image: str, unit: int):
         params = dict(
@@ -453,6 +512,9 @@ class Client(QObject):
                 has_selection, 
                 resized_width if not disable_base_and_max_size else width, 
                 resized_height if not disable_base_and_max_size else height, 
+                width,
+                height,
+                False,
                 controlnet_src_imgs
             )
             params.update(
@@ -500,8 +562,8 @@ class Client(QObject):
 
         self.post("img2img", params, cb)
 
-    def post_official_api_img2img(self, cb, src_img, width, height, has_selection, 
-                                controlnet_src_imgs: dict = {}):
+    def post_official_api_img2img(self, cb, src_img, width, height, has_selection,
+                                controlnet_src_imgs: dict = {}, is_upscale=False):
         """Uses official API. Leave controlnet_src_imgs empty to not use controlnet."""
         params = dict(init_images=[img_to_b64(src_img)])
         if not self.cfg("just_use_yaml", bool):
@@ -520,6 +582,9 @@ class Client(QObject):
                 has_selection, 
                 resized_width if not disable_base_and_max_size else width, 
                 resized_height if not disable_base_and_max_size else height, 
+                width,
+                height,
+                is_upscale,
                 controlnet_src_imgs
             ))
             params.update(
@@ -604,6 +669,9 @@ class Client(QObject):
                 has_selection, 
                 resized_width if not disable_base_and_max_size else width, 
                 resized_height if not disable_base_and_max_size else height, 
+                width,
+                height,
+                False,
                 controlnet_src_imgs
             ))
             params.update(

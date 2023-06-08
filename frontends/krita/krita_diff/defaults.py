@@ -258,8 +258,7 @@ class Defaults:
     upscale_downscale_first: bool = False
 
     tiled_diffusion_enable: bool = False
-    tiled_diffusion_overwrite_image_size: bool = False
-    tiled_diffusion_keep_input_image_size: bool = True
+    #tiled_diffusion_keep_input_image_size: bool = True
     tiled_diffusion_method_list: List[str] = field(default_factory=lambda: ["MultiDiffusion", "Mixture of Diffusers"])
     tiled_diffusion_method:str = "MultiDiffusion"
     tiled_diffusion_latent_tile_width: int = 96
