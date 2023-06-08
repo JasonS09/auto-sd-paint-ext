@@ -58,11 +58,6 @@ class SDCommonPage(QWidget):
             script.cfg, "upscaler_list", "upscaler_name", label="Upscaler:"
         )
 
-        self.use_tiled_diffusion = QCheckBox(script.cfg, "tiled_diffusion_enable", "Use tiled diffusion to upscale")
-        self.tips = TipsLayout(
-            ["Tiled diffusion config can be found in Upscale tab. Will use the previous upscaler if not applied manually. It will also ignore scale factor."]
-        )
-
         # Restore faces
         self.face_restorer_layout = QComboBoxLayout(
             script.cfg,
