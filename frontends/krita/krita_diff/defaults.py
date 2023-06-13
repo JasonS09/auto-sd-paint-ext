@@ -288,6 +288,7 @@ class Defaults:
 
     controlnet0_enable: bool = False
     controlnet0_low_vram: bool = False
+    controlnet0_pixel_perfect: bool = False
     controlnet0_preprocessor: str = "None" 
     controlnet0_model: str = "None"
     controlnet0_weight: float = 1.0
@@ -301,6 +302,7 @@ class Defaults:
 
     controlnet1_enable: bool = False
     controlnet1_low_vram: bool = False
+    controlnet1_pixel_perfect: bool = False
     controlnet1_preprocessor: str = "None" 
     controlnet1_model: str = "None"
     controlnet1_weight: float = 1.0
@@ -314,6 +316,7 @@ class Defaults:
 
     controlnet2_enable: bool = False
     controlnet2_low_vram: bool = False
+    controlnet2_pixel_perfect: bool = False
     controlnet2_preprocessor: str = "None"
     controlnet2_model: str = "None"
     controlnet2_weight: float = 1.0
@@ -327,6 +330,7 @@ class Defaults:
 
     controlnet3_enable: bool = False
     controlnet3_low_vram: bool = False
+    controlnet3_pixel_perfect: bool = False
     controlnet3_preprocessor: str = "None"
     controlnet3_model: str = "None"
     controlnet3_weight: float = 1.0
@@ -340,6 +344,7 @@ class Defaults:
 
     controlnet4_enable: bool = False
     controlnet4_low_vram: bool = False
+    controlnet4_pixel_perfect: bool = False
     controlnet4_preprocessor: str = "None"
     controlnet4_model: str = "None"
     controlnet4_weight: float = 1.0
@@ -353,6 +358,7 @@ class Defaults:
 
     controlnet5_enable: bool = False
     controlnet5_low_vram: bool = False
+    controlnet5_pixel_perfect: bool = False
     controlnet5_preprocessor: str = "None"
     controlnet5_model: str = "None"
     controlnet5_weight: float = 1.0
@@ -366,6 +372,7 @@ class Defaults:
 
     controlnet6_enable: bool = False
     controlnet6_low_vram: bool = False
+    controlnet6_pixel_perfect: bool = False
     controlnet6_preprocessor: str = "None"
     controlnet6_model: str = "None"
     controlnet6_weight: float = 1.0
@@ -379,6 +386,7 @@ class Defaults:
 
     controlnet7_enable: bool = False
     controlnet7_low_vram: bool = False
+    controlnet7_pixel_perfect: bool = False
     controlnet7_preprocessor: str = "None"
     controlnet7_model: str = "None"
     controlnet7_weight: float = 1.0
@@ -392,6 +400,7 @@ class Defaults:
 
     controlnet8_enable: bool = False
     controlnet8_low_vram: bool = False
+    controlnet8_pixel_perfect: bool = False
     controlnet8_preprocessor: str = "None"
     controlnet8_model: str = "None"
     controlnet8_weight: float = 1.0
@@ -405,6 +414,7 @@ class Defaults:
 
     controlnet9_enable: bool = False
     controlnet9_low_vram: bool = False
+    controlnet9_pixel_perfect: bool = False
     controlnet9_preprocessor: str = "None"
     controlnet9_model: str = "None"
     controlnet9_weight: float = 1.0
