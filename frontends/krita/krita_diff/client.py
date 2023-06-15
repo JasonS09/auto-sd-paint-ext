@@ -289,7 +289,7 @@ class Client(QObject):
             for i in range(len(self.cfg("controlnet_unit_list", "QStringList"))):
                 if self.cfg(f"controlnet{i}_enable", bool):
                     controlnet_units_param.append(
-                        self.controlnet_unit_params(img_to_b64(controlnet_src_imgs[str(i)]), i, width, height)
+                        self.controlnet_unit_params(img_to_b64(controlnet_src_imgs[str(i)]), i, resized_width, resized_height)
                     )
                 else:
                     controlnet_units_param.append({"enabled": False})
