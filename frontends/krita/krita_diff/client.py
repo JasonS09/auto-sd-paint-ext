@@ -328,7 +328,7 @@ class Client(QObject):
         return [True, #enable 
             self.cfg("tiled_diffusion_method", str), 
             False, #overwrite size, 
-            True, #keep input size 
+            False, #keep input size 
             resized_width,# if not is_upscale else width, 
             resized_height,# if not is_upscale else height, 
             self.cfg("tiled_diffusion_latent_tile_width", int), 
