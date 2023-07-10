@@ -285,9 +285,6 @@ class Script(QObject):
         # freeze selection region
         controlnet_enabled = self.check_controlnet_enabled()
         use_official_api = controlnet_enabled or self.cfg("tiled_vae_enable", bool) or self.cfg("tiled_diffusion_enable", bool)
-        insert, glayer = self.img_inserter(
-            self.x, self.y, self.width, self.height, not self.cfg("no_groups", bool)
-        )
         glayer = self.doc.createGroupLayer("Unnamed Group")
         self.doc.rootNode().addChildNode(glayer, None)
         insert = self.img_inserter(
